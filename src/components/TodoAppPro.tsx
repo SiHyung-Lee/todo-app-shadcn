@@ -84,6 +84,8 @@ const TodoAppPro: React.FC = () => {
   const [category, setCategory] = useState<string>('개인');
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
   const [editText, setEditText] = useState('');
+  const [editPriority, setEditPriority] = useState<'low' | 'medium' | 'high'>('medium');
+  const [editCategory, setEditCategory] = useState('');
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -259,24 +261,36 @@ const TodoAppPro: React.FC = () => {
     try {
       const { error } = await supabase
         .from('todos')
-        .update({ text: editText })
+        .update({ 
+          text: editText,
+          priority: editPriority,
+          category: editCategory
+        })
         .eq('id', editingTodo.id);
 
       if (error) throw error;
 
       setTodos(todos.map(todo =>
-        todo.id === editingTodo.id ? { ...todo, text: editText } : todo
+        todo.id === editingTodo.id 
+          ? { ...todo, text: editText, priority: editPriority, category: editCategory } 
+          : todo
       ));
       setEditingTodo(null);
       setEditText('');
+      setEditPriority('medium');
+      setEditCategory('');
     } catch (error) {
       console.error('Error updating todo:', error);
       // 에러 시에도 로컬에서는 업데이트
       setTodos(todos.map(todo =>
-        todo.id === editingTodo.id ? { ...todo, text: editText } : todo
+        todo.id === editingTodo.id 
+          ? { ...todo, text: editText, priority: editPriority, category: editCategory } 
+          : todo
       ));
       setEditingTodo(null);
       setEditText('');
+      setEditPriority('medium');
+      setEditCategory('');
     }
   };
 
@@ -582,6 +596,8 @@ const TodoAppPro: React.FC = () => {
                             onClick={() => {
                               setEditingTodo(todo);
                               setEditText(todo.text);
+                              setEditPriority(todo.priority);
+                              setEditCategory(todo.category);
                             }}
                           >
                             <Edit2 className="h-4 w-4 mr-2" />
@@ -604,14 +620,50 @@ const TodoAppPro: React.FC = () => {
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>할일 수정</DialogTitle>
+                    <DialogDescription>
+                      할일의 내용, 우선순위, 카테고리를 수정하세요.
+                    </DialogDescription>
                   </DialogHeader>
-                  <Input
-                    value={editText}
-                    onChange={(e) => setEditText(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && updateTodo()}
-                  />
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="edit-text">할일 내용</Label>
+                      <Input
+                        id="edit-text"
+                        value={editText}
+                        onChange={(e) => setEditText(e.target.value)}
+                        placeholder="할일을 입력하세요..."
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="edit-priority">우선순위</Label>
+                      <Select value={editPriority} onValueChange={(value: any) => setEditPriority(value)}>
+                        <SelectTrigger id="edit-priority">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">낮음</SelectItem>
+                          <SelectItem value="medium">보통</SelectItem>
+                          <SelectItem value="high">높음</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="edit-category">카테고리</Label>
+                      <Input
+                        id="edit-category"
+                        value={editCategory}
+                        onChange={(e) => setEditCategory(e.target.value)}
+                        placeholder="카테고리 (예: 개인, 업무)"
+                      />
+                    </div>
+                  </div>
                   <DialogFooter>
-                    <Button onClick={updateTodo}>저장</Button>
+                    <Button variant="outline" onClick={() => setEditingTodo(null)}>
+                      취소
+                    </Button>
+                    <Button onClick={updateTodo}>
+                      저장
+                    </Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
