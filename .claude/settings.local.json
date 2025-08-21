@@ -3,7 +3,9 @@
     "allow": [
       "WebFetch(domain:ui.shadcn.com)",
       "Bash(npm install:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm install:*)"
     ],
     "deny": []
   }
