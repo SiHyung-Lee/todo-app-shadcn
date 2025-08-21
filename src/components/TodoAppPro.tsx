@@ -54,10 +54,8 @@ import {
   Circle, 
   ListTodo, 
   MoreVertical,
-  Calendar,
   Clock,
   Edit2,
-  Archive,
   Star,
   StarOff,
   Loader2
